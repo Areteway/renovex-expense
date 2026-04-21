@@ -38,9 +38,15 @@ export function Header({ title }: { title: string }) {
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }: { data: { user: User | null } }) => {
-      setAuthUser(data.user);
+    // โหลด session ปัจจุบันทันที
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthUser(data.session?.user ?? null);
     });
+    // ฟัง event เมื่อ auth state เปลี่ยน (login/logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   async function handleLogout() {
