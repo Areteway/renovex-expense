@@ -8,7 +8,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isAuthPage = pathname === "/login" || pathname.startsWith("/auth");
 
   if (isAuthPage) {
-    return <>{children}</>;
+    return <div className="flex-1">{children}</div>;
   }
 
   return (
