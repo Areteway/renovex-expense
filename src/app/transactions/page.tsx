@@ -113,7 +113,7 @@ function TransactionsContent() {
         .select("name")
         .order("name");
       if (data) {
-        const unique = [...new Set(data.map((m: { name: string }) => m.name))];
+        const unique = [...new Set(data.map((m: { name: string }) => m.name))] as string[];
         setProjectMembers(unique);
       }
       return;
