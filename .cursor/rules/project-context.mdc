@@ -1,0 +1,61 @@
+---
+description: RenovEx project context — stack, structure, conventions
+alwaysApply: true
+---
+
+# RenovEx — Renovation Expense Control System
+
+## Project Info
+- **Path**: `d:\ex-vibe-code-expense`
+- **Dev server**: `npm run dev` → http://localhost:3000
+- **Language**: Thai UI, TypeScript code
+
+## Tech Stack
+- **Framework**: Next.js 16 App Router + TypeScript
+- **UI**: shadcn/ui v4 (uses `@base-ui/react` NOT Radix — no `asChild`, use `render` prop instead)
+- **Styling**: Tailwind CSS v4
+- **Database**: Supabase (PostgreSQL)
+- **Storage**: Supabase Storage — bucket name: `"attachment"` (ไม่มี s)
+- **State**: Zustand (`src/store/useAppStore.ts`)
+- **Forms**: react-hook-form + zod (ต้อง cast `resolver: zodResolver(schema) as any`)
+- **Charts**: recharts
+
+## Database Tables
+| Table | Description |
+|---|---|
+| `projects` | โปรเจกต์รีโนเวท (มี address, area, budget_total) |
+| `transactions` | รายการรายรับ/รายจ่าย |
+| `attachments` | ไฟล์แนบต่อ transaction |
+| `project_members` | สมาชิกทีมแยกตามโปรเจกต์ (role เป็น free text) |
+
+## Key Files
+- `src/types/index.ts` — types, CATEGORIES list, USERS, ROLE_PERMISSIONS
+- `src/lib/supabase/client.ts` — Supabase browser client (มี guard สำหรับ build time)
+- `src/store/useAppStore.ts` — currentUser, currentRole, selectedProjectId
+- `src/lib/format.ts` — formatCurrency, formatDate, formatNumber
+- `supabase/schema.sql` — DB schema
+- `supabase/project_members.sql` — project_members table
+
+## Pages
+| Route | Description |
+|---|---|
+| `/` | Dashboard — stats, budget bar, category chart |
+| `/projects` | จัดการโปรเจกต์ + จัดการทีม (MemberManager) |
+| `/transactions` | รายการ + filter + เพิ่ม/แก้ไข/ลบ + แนบไฟล์ |
+| `/export` | Export CSV |
+
+## Important Conventions
+- **Auth**: ไม่มี — role hardcode ใน Header dropdown (Admin/Foreman/Accounting)
+- **base-ui Select**: ต้องใส่ children ใน `<SelectValue>` เพื่อแสดงข้อความ (ไม่ auto-resolve label)
+- **Select value**: ต้องมี fallback `?? ""` เสมอ ป้องกัน uncontrolled→controlled warning
+- **DropdownMenuTrigger**: ใช้ `render={<Button .../>}` แทน `asChild`
+- **onValueChange**: รับ `string | null` ต้อง wrap `(v) => setter(v ?? "")`
+- **Pages**: ต้องมี `export const dynamic = "force-dynamic"`
+
+## Roles & Permissions
+- **admin**: canCreate, canEdit, canDelete, canExport
+- **foreman**: canCreate only
+- **accounting**: canExport only
+
+## Categories (CATEGORIES array in types/index.ts)
+รายได้, เครื่องใช้ไฟฟ้า, อุปกรณ์ไฟฟ้าฯ, เงินมัดจำทำสัญญา, วัสดุตกแต่งห้อง, วัสดุระบบประปา, วัสดุก่อสร้าง, วัสดุพื้น, กระเบื้อง, เฟอร์นิเจอร์, ค่าแรงช่าง, ค่าขนส่ง, ค่านิติส่วนกลาง, ค่าออกแบบ, ค่าเบ็ดเตล็ด, บิ้วอิน, ค่าคอมมิชชั่น, เงินสำรองลงทุน
