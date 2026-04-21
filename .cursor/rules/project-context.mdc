@@ -23,18 +23,18 @@ alwaysApply: true
 ## Database Tables
 | Table | Description |
 |---|---|
-| `projects` | โปรเจกต์รีโนเวท (มี address, area, budget_total) |
+| `users` | Public profile ลิงก์กับ auth.users (auto-created เมื่อ OAuth login) |
+| `projects` | โปรเจกต์รีโนเวท (มี address, area, budget_total, **owner_id → auth.users**) |
 | `transactions` | รายการรายรับ/รายจ่าย |
 | `attachments` | ไฟล์แนบต่อ transaction |
 | `project_members` | สมาชิกทีมแยกตามโปรเจกต์ (role เป็น free text) |
 
-## Key Files
-- `src/types/index.ts` — types, CATEGORIES list, USERS, ROLE_PERMISSIONS
-- `src/lib/supabase/client.ts` — Supabase browser client (มี guard สำหรับ build time)
-- `src/store/useAppStore.ts` — currentUser, currentRole, selectedProjectId
-- `src/lib/format.ts` — formatCurrency, formatDate, formatNumber
-- `supabase/schema.sql` — DB schema
-- `supabase/project_members.sql` — project_members table
+## RLS (Row Level Security) — Phase 1
+- **users**: เห็นและแก้ไขได้เฉพาะ row ตัวเอง (`id = auth.uid()`)
+- **projects**: เห็น/แก้ไข/ลบได้เฉพาะ `owner_id = auth.uid()`
+- **transactions**: เห็น/แก้ไข/ลบได้ถ้า project.owner_id = auth.uid()
+- **attachments**: เห็น/แก้ไข/ลบได้ถ้า transaction → project.owner_id = auth.uid()
+- **project_members**: เห็น/แก้ไข/ลบได้ถ้า project.owner_id = auth.uid()
 
 ## Pages
 | Route | Description |
@@ -44,8 +44,19 @@ alwaysApply: true
 | `/transactions` | รายการ + filter + เพิ่ม/แก้ไข/ลบ + แนบไฟล์ |
 | `/export` | Export CSV |
 
+## Key Files
+- `src/types/index.ts` — types, CATEGORIES list, USERS, ROLE_PERMISSIONS, UserProfile
+- `src/lib/supabase/client.ts` — Supabase browser client (มี guard สำหรับ build time)
+- `src/store/useAppStore.ts` — currentUser, currentRole, selectedProjectId
+- `src/lib/format.ts` — formatCurrency, formatDate, formatNumber
+- `supabase/schema.sql` — DB schema (base)
+- `supabase/migrations/001_users_and_rls.sql` — Phase 1: users table + owner_id + RLS
+- `supabase/project_members.sql` — project_members table
+
 ## Important Conventions
-- **Auth**: ไม่มี — role hardcode ใน Header dropdown (Admin/Foreman/Accounting)
+- **Auth**: Google OAuth via Supabase Auth — middleware redirect unauthenticated users to `/login`
+- **Ownership**: projects.owner_id = auth.uid() — RLS บังคับให้เห็นเฉพาะข้อมูลตัวเอง
+- **Role (UI only)**: role hardcode ใน Header dropdown (Admin/Foreman/Accounting) สำหรับ UI permission เท่านั้น
 - **base-ui Select**: ต้องใส่ children ใน `<SelectValue>` เพื่อแสดงข้อความ (ไม่ auto-resolve label)
 - **Select value**: ต้องมี fallback `?? ""` เสมอ ป้องกัน uncontrolled→controlled warning
 - **DropdownMenuTrigger**: ใช้ `render={<Button .../>}` แทน `asChild`

@@ -1,9 +1,26 @@
 -- =============================================
 -- Renovation Expense Control System - Schema
 -- =============================================
+-- หมายเหตุ: Migration จริงอยู่ใน supabase/migrations/
+--   001_users_and_rls.sql — users table + owner_id + RLS
+-- =============================================
 
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
+
+-- =============================================
+-- USERS (public profile linked to auth.users)
+-- =============================================
+-- create table if not exists public.users (
+--   id         uuid primary key references auth.users(id) on delete cascade,
+--   email      text not null,
+--   full_name  text,
+--   avatar_url text,
+--   role       text not null default 'admin' check (role in ('admin', 'foreman', 'accounting')),
+--   created_at timestamptz not null default now(),
+--   updated_at timestamptz not null default now()
+-- );
+-- ดู migrations/001_users_and_rls.sql สำหรับ full setup
 
 -- =============================================
 -- PROJECTS
@@ -15,6 +32,7 @@ create table if not exists projects (
   area numeric(10,2),
   target_sell_price numeric(15,2),
   status text not null default 'active' check (status in ('active', 'completed', 'paused')),
+  owner_id uuid references auth.users(id),  -- เจ้าของโปรเจกต์ (Google OAuth user)
   created_by text not null default 'admin',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

@@ -101,6 +101,9 @@ export function ProjectForm({
         if (error) throw error;
         toast.success("แก้ไขโปรเจกต์สำเร็จ");
       } else {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) throw new Error("ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่");
+
         // สร้างโปรเจกต์
         const { data: inserted, error } = await supabase
           .from("projects")
@@ -109,7 +112,8 @@ export function ProjectForm({
             address: data.address || null,
             area: data.area || null,
             budget_total: 0,
-            created_by: currentUser,
+            owner_id: authUser.id,
+            created_by: authUser.user_metadata?.full_name ?? authUser.email ?? currentUser,
           })
           .select()
           .single();
