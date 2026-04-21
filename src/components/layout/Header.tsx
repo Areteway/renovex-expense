@@ -81,7 +81,7 @@ export function Header({ title }: { title: string }) {
 
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={<Button variant="ghost" size="sm" className="flex items-center gap-1.5" />}
+            render={<button type="button" className="inline-flex items-center gap-1.5 rounded-lg px-2.5 h-7 text-sm font-medium hover:bg-muted transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/50 select-none" />}
           >
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
