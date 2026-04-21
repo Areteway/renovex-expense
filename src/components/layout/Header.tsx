@@ -80,7 +80,9 @@ export function Header({ title }: { title: string }) {
         </Badge>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg px-2.5 h-7 text-sm font-medium hover:bg-muted transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
+          <DropdownMenuTrigger
+            render={<Button variant="ghost" size="sm" className="flex items-center gap-1.5" />}
+          >
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarUrl} alt="" className="w-6 h-6 rounded-full" />
