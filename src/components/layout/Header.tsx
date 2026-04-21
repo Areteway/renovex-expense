@@ -9,6 +9,7 @@ import type { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -109,16 +110,18 @@ export function Header({ title }: { title: string }) {
                 <DropdownMenuSeparator />
               </>
             )}
-            <DropdownMenuLabel className="text-xs text-gray-400">เปลี่ยน Role (Dev)</DropdownMenuLabel>
-            {USERS.map((u) => (
-              <DropdownMenuItem
-                key={u.value}
-                onClick={() => handleUserSwitch(u.value)}
-                className={currentUser === u.value ? "bg-gray-100 font-medium" : ""}
-              >
-                {u.label}
-              </DropdownMenuItem>
-            ))}
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-xs text-gray-400">เปลี่ยน Role (Dev)</DropdownMenuLabel>
+              {USERS.map((u) => (
+                <DropdownMenuItem
+                  key={u.value}
+                  onClick={() => handleUserSwitch(u.value)}
+                  className={currentUser === u.value ? "bg-gray-100 font-medium" : ""}
+                >
+                  {u.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleLogout}
