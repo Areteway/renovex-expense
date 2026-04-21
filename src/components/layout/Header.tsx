@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppStore, getUserRole } from "@/store/useAppStore";
 import { createClient } from "@/lib/supabase/client";
 import { USERS } from "@/types";
-import type { User } from "@supabase/supabase-js";
+import type { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,11 +39,11 @@ export function Header({ title }: { title: string }) {
 
   useEffect(() => {
     // โหลด session ปัจจุบันทันที
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
       setAuthUser(data.session?.user ?? null);
     });
     // ฟัง event เมื่อ auth state เปลี่ยน (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setAuthUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
