@@ -38,7 +38,7 @@ export function Header({ title }: { title: string }) {
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(({ data }: { data: { user: User | null } }) => {
       setAuthUser(data.user);
     });
   }, []);
