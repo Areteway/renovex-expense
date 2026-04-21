@@ -2,7 +2,8 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { BudgetProgress } from "@/components/dashboard/BudgetProgress";
@@ -26,6 +27,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+function AuthErrorBanner() {
+  const searchParams = useSearchParams();
+  const authError = searchParams.get("error_code") ?? searchParams.get("error");
+  if (!authError) return null;
+  return (
+    <div className="mx-4 md:mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
+      <span>⚠️</span>
+      <span>Session หมดอายุ กรุณา <a href="/login" className="underline font-medium">เข้าสู่ระบบใหม่</a></span>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { selectedProjectId, setSelectedProjectId } = useAppStore();
@@ -112,6 +125,9 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 flex flex-col">
       <Header title="Dashboard" />
+      <Suspense>
+        <AuthErrorBanner />
+      </Suspense>
 
       <main className="flex-1 p-4 md:p-6 space-y-5">
         {/* Project Selector */}
